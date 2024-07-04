@@ -7,10 +7,6 @@ public class Main {
     public static void main(String[] args) {
         SystemManager systemManager = new SystemManager();
 
-        List<Planet> planets = systemManager.getPlanets();
-        List<Specie> species = systemManager.getSpecies();
-        List<Alien> aliens = systemManager.getAliens();
-
         boolean flag = true;
         System.out.println("CADASTRO INTERPLANETÁRIO\n");
 
@@ -63,31 +59,30 @@ public class Main {
         }
 
         System.out.println("Escolha uma opção de espécie: ");
-        specie = chooseSpecies(scanner, species);
-        int dangerLevel = getDangerLevel(scanner);
+        specie = chooseSpecies(systemManager);
+        int dangerLevel = getDangerLevel(systemManager);
         Alien alien = new Alien(id, name, specie, dangerLevel, new Date());
         systemManager.addAlien(alien);
     }
 
     public static void registerSpecies(SystemManager systemManager) {
         Scanner scanner = systemManager.getScanner();
-        List<Specie> species = systemManager.getSpecies();
-        List<Planet> planets = systemManager.getPlanets();
 
         System.out.println("Informe o nome da espécie: ");
         String name = scanner.nextLine();
         System.out.println("Informe o planeta de origem: ");
         String planetName = scanner.nextLine();
-        Planet planet = findPlanet(planetName, planets);
+        Planet planet = findPlanet(planetName, systemManager);
 
         if (planet == null) {
             planet = new Planet(planetName);
+            systemManager.addPlanet(planet);
         }
 
-        int dangerLevel = getDangerLevel(scanner);
+        int dangerLevel = getDangerLevel(systemManager);
 
         Specie specie = new Specie(name, planet, dangerLevel);
-        species.add(specie);
+        systemManager.addSpecie(specie);
     }
 
     public static void evaluateDangerLevel(SystemManager systemManager) {
@@ -133,7 +128,7 @@ public class Main {
 
         int dangerLevel = 0;
 
-        System.out.println("Informe o nível de periculosidade:");
+        System.out.println("Informe o nível de periculosidade de 1 a 10:");
 
         while (dangerLevel < 1 || dangerLevel > 10) {
             try {
@@ -174,7 +169,9 @@ public class Main {
         return species.get(speciesIndex - 1);
     }
 
-    public static void showReport(List<Alien> aliens) {
+    public static void showReport(SystemManager systemManager) {
+        List<Alien> aliens = systemManager.getAliens();
+
         for (Alien alien : aliens) {
             alien.showData();
             System.out.println("=========");
