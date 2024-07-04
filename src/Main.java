@@ -5,30 +5,40 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        SystemManager systemManager = new SystemManager();
 
-        List<Planet> planets = new ArrayList<>();
-        List<Specie> species = new ArrayList<>();
-        List<Alien> aliens = new ArrayList<>();
+        List<Planet> planets = systemManager.getPlanets();
+        List<Specie> species = systemManager.getSpecies();
+        List<Alien> aliens = systemManager.getAliens();
 
         boolean flag = true;
+        System.out.println("CADASTRO INTERPLANETÁRIO\n");
+
         while (flag) {
             System.out.println("Digite uma opção: ");
             System.out.println("1 - Registrar alienígena");
             System.out.println("2 - Registrar espécie");
             System.out.println("3 - Avaliar periculosidade");
+            System.out.println("4 - Mostrar relatório");
+            System.out.println("5 - Sair");
 
-            String opcao = scanner.nextLine();
+            String opcao = systemManager.getScanner().nextLine();
 
             switch (opcao) {
                 case "1":
-                    registerNewAlien(scanner, species, aliens, planets);
+                    registerNewAlien(systemManager);
                     break;
                 case "2":
-                    registerSpecies(scanner, species, planets);
+                    registerSpecies(systemManager);
                     break;
                 case "3":
-                    evaluateDangerLevels(aliens);
+                    evaluateDangerLevel(systemManager);
+                    break;
+                case "4":
+                    showReport(systemManager);
+                    break;
+                case "5":
+                    flag = false;
                     break;
                 default:
                     System.out.println("Opção inválida");
@@ -37,7 +47,10 @@ public class Main {
         }
     }
 
-    public static void registerNewAlien(Scanner scanner, List<Specie> species, List<Alien> aliens, List<Planet> planets) {
+    public static void registerNewAlien(SystemManager systemManager) {
+        Scanner scanner = systemManager.getScanner();
+        List<Specie> species = systemManager.getSpecies();
+
         System.out.println("Informe a ID do alienígena: ");
         String id = scanner.nextLine();
         System.out.println("Informe o nome do alienígena: ");
@@ -53,10 +66,14 @@ public class Main {
         specie = chooseSpecies(scanner, species);
         int dangerLevel = getDangerLevel(scanner);
         Alien alien = new Alien(id, name, specie, dangerLevel, new Date());
-        aliens.add(alien);
+        systemManager.addAlien(alien);
     }
 
-    public static void registerSpecies(Scanner scanner, List<Specie> species, List<Planet> planets) {
+    public static void registerSpecies(SystemManager systemManager) {
+        Scanner scanner = systemManager.getScanner();
+        List<Specie> species = systemManager.getSpecies();
+        List<Planet> planets = systemManager.getPlanets();
+
         System.out.println("Informe o nome da espécie: ");
         String name = scanner.nextLine();
         System.out.println("Informe o planeta de origem: ");
@@ -73,14 +90,32 @@ public class Main {
         species.add(specie);
     }
 
-    public static void evaluateDangerLevels(List<Alien>aliens) {
-        for (Alien alien : aliens) {
-            alien.showData();
-            System.out.println("=========");
+    public static void evaluateDangerLevel(SystemManager systemManager) {
+        Scanner scanner = systemManager.getScanner();
+        List<Alien> aliens = systemManager.getAliens();
+
+        Alien alien;
+
+        while(true) {
+            System.out.println("Informe o nome do alienígena:");
+            String name = scanner.nextLine();
+
+            for (Alien a : aliens) {
+                if (a.getName().equalsIgnoreCase(name)) {
+                    alien = a;
+                    System.out.println("Nível de periculosidade: " + alien.getAverageDangerLevel());
+                    return;
+                }
+            }
+
+            System.out.println("Alienígena não localizado");
         }
+
     }
 
-    public static Planet findPlanet(String name, List<Planet> planets) {
+    public static Planet findPlanet(String name, SystemManager systemManager) {
+        List<Planet> planets = systemManager.getPlanets();
+
         Planet planet = null;
 
         for (Planet p : planets) {
@@ -93,7 +128,9 @@ public class Main {
         return planet;
     }
 
-    public static int getDangerLevel(Scanner scanner) {
+    public static int getDangerLevel(SystemManager systemManager) {
+        Scanner scanner = systemManager.getScanner();
+
         int dangerLevel = 0;
 
         System.out.println("Informe o nível de periculosidade:");
@@ -113,7 +150,10 @@ public class Main {
         return dangerLevel;
     }
 
-    public static Specie chooseSpecies(Scanner scanner, List<Specie> species) {
+    public static Specie chooseSpecies(SystemManager systemManager) {
+        Scanner scanner = systemManager.getScanner();
+        List<Specie> species = systemManager.getSpecies();
+
         for (int i = 0; i < species.size(); i++) {
             System.out.println(i + 1 + " - " + species.get(i).getName());
         }
@@ -132,5 +172,12 @@ public class Main {
         }
 
         return species.get(speciesIndex - 1);
+    }
+
+    public static void showReport(List<Alien> aliens) {
+        for (Alien alien : aliens) {
+            alien.showData();
+            System.out.println("=========");
+        }
     }
 }
